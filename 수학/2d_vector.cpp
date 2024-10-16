@@ -92,11 +92,10 @@ ll ccw_special(const vec2<int>& a, const vec2<int>& b, const vec2<int>& c) { // 
     return ccw_special(b - a, c - b); 
 }
 
-vector<vec2<int>> get_convex_hull(vector<vec2<int>>& coord) { // 정수 좌표일 때 convex hull 구하기
+void get_convex_hull(vector<vec2<int>>& coord, vector<vec2<int>>& hull) { // 정수 좌표일 때 convex hull 구하기
     int N = coord.size();
     sort(coord.begin(), coord.end());
     
-    vector<vec2<int>> hull;
     for(int i = 0; i < N; i++) {
         while(hull.size() >= 2 && ccw_special(hull[hull.size() - 2], hull[hull.size() - 1], coord[i]) >= 0) {
             hull.pop_back();
@@ -113,7 +112,6 @@ vector<vec2<int>> get_convex_hull(vector<vec2<int>>& coord) { // 정수 좌표�
     }
 
     hull.pop_back(); // 처음 위치 중복 제거
-    return hull;
 }
 
 
@@ -125,7 +123,9 @@ int main() {
     vector<vec2<int>> coord(N);
     for(int i = 0; i < N; i++) cin>>coord[i].x>>coord[i].y;
 
-    cout<<get_convex_hull(coord).size();
+    vector<vec2<int>> hull;
+    get_convex_hull(coord, hull);
+    cout<<hull.size();
 
     return 0;
 }
