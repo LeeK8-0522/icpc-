@@ -1,58 +1,131 @@
 #include <bits/stdc++.h>
 using namespace std;
+typedef long long ll;
+
+/*
+    인덱스는 항상 조심.... 진짜 찾기 힘들고 실수하고 또 실수한다.
+*/
 
 const double PI = 2.0 * acos(0.0); // pi 값
 
-struct vec2 { // 2차원 벡터
-    double x, y;
+template <typename T>
+struct vec2 {
+    T x, y;
 
-    vec2(double x = 0, double y = 0) : x(x), y(y) {}
- 
-    bool operator == (const vec2& cmp) const { // 두 벡터 동일 여부
-        return x == cmp.x && y == cmp.y;
+    vec2(T x = 0, T y = 0) : x(x), y(y) {}
+
+    // 벡터 동일 여부
+    bool operator == (const vec2<T>& r) const {
+        return x == r.x && y == r.y;
     }
 
-    bool operator < (const vec2& cmp) const { // 정렬 기준
-        return x != cmp.x ? x < cmp.x : y < cmp.y;
+    // 정렬 기준
+    bool operator < (const vec2<T>& r) const {
+        return x != r.x ? x < r.x : y < r.y;
     }
 
-    vec2 operator + (const vec2& cmp) const { // 두 벡터 합 연산
-        return vec2(x + cmp.x, y + cmp.y);
+    // 두 벡터 합 연산
+    vec2<T> operator + (const vec2<T>& r) const {
+        return vec2<T>(x + r.x, y + r.y);
     }
 
-    vec2 operator - (const vec2& cmp) const { // cmp -> x
-        return vec2(x - cmp.x, y - cmp.y);
+    // 두 벡터 차 연산
+    vec2<T> operator - (const vec2<T>& r) const {
+        return vec2<T>(x - r.x, y - r.y);
     }
 
-    vec2 operator * (double k) const { // 실수 k배
-        return vec2(x * k, y * k);
+    // 스칼라 실수 k배
+    vec2<T> operator * (T k) const {
+        return vec2<T>(x * k, y * k);
     }
 
-    double norm() const {return hypot(x, y);}; // 벡터의 크기 (cf. 'hypot': 피타고라스 정리의 빗변의 길이)
-
-    vec2 normalize() const { // 정규화된 벡터를 반환
-        return vec2(x/norm(), y/norm()); 
+    // 벡터 크기
+    double norm() const {
+        return hypot(x, y); // 피타고라스 정리로 벡터 크기 계산
     }
 
-    double polar() const {return fmod(atan2(y, x) + 2 * PI, 2 * PI);}; // x축의 양의 방향과의 반시계 방향 각도 [0, 2 * pi) 
-
-    double dot(const vec2& cmp) const { // 내적
-        return x * cmp.x + y * cmp.y;
+    // 정규화된 벡터 반환
+    vec2<double> normalize() const {
+        return vec2<double>(x / norm(), y / norm());
     }
 
-    double cross(const vec2& cmp) const { // x X cmp 외적
-        return x * cmp.y - y * cmp.x;
+    // 극좌표계에서의 각도
+    double polar() const {
+        return fmod(atan2(y, x) + 2 * M_PI, 2 * M_PI);
     }
 
-    vec2 project(const vec2& cmp) const { // x를 cmp에 사영한 벡터 반환
-        vec2 u = cmp.normalize();
+    // 벡터 내적
+    T dot(const vec2<T>& r) const {
+        return x * r.x + y * r.y;
+    }
+
+    // 벡터 외적
+    T cross(const vec2<T>& r) const {
+        return x * r.y - y * r.x;
+    }
+
+    // 벡터 사영
+    vec2<double> project(const vec2<T>& r) const {
+        vec2<double> u = r.normalize();
         return u * u.dot(*this);
     }
 };
 
+// 벡터 버전 CCW (템플릿 적용)
+template <typename T>
+double ccw(const vec2<T>& a, const vec2<T>& b) {
+    return a.cross(b); // a X b 외적 (양수: 반시계, 음수: 시계)
+}
+
+// 세 점 버전 CCW (템플릿 적용)
+template <typename T>
+double ccw(const vec2<T>& a, const vec2<T>& b, const vec2<T>& c) { // a -> b, b -> c
+    return ccw(b - a, c - b); 
+}
+
+// 정수 좌표일 때 overflow를 방지하는 ccw
+ll ccw_special(const vec2<int>& a, const vec2<int>& b) {
+    return (ll)a.x * (ll)b.y - (ll)a.y * (ll)b.x;
+}
+
+ll ccw_special(const vec2<int>& a, const vec2<int>& b, const vec2<int>& c) { // a -> b, b -> c
+    return ccw_special(b - a, c - b); 
+}
+
+vector<vec2<int>> get_convex_hull(vector<vec2<int>>& coord) { // 정수 좌표일 때 convex hull 구하기
+    int N = coord.size();
+    sort(coord.begin(), coord.end());
+    
+    vector<vec2<int>> hull;
+    for(int i = 0; i < N; i++) {
+        while(hull.size() >= 2 && ccw_special(hull[hull.size() - 2], hull[hull.size() - 1], coord[i]) >= 0) {
+            hull.pop_back();
+        }
+        hull.push_back(coord[i]);
+    }
+
+    int upper_hull = hull.size();
+    for(int i = N - 2; i >= 0; i--) {
+        while(hull.size() >= upper_hull + 1 && ccw_special(hull[hull.size() - 2], hull[hull.size() - 1], coord[i]) >= 0) { // 위쪽 껍질은 건들지 않도록!
+            hull.pop_back();
+        }
+        hull.push_back(coord[i]);
+    }
+
+    hull.pop_back(); // 처음 위치 중복 제거
+    return hull;
+}
+
+
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(NULL); cout.tie(NULL);
+
+    int N; cin>>N;
+    vector<vec2<int>> coord(N);
+    for(int i = 0; i < N; i++) cin>>coord[i].x>>coord[i].y;
+
+    cout<<get_convex_hull(coord).size();
 
     return 0;
 }
