@@ -4,6 +4,10 @@
 using namespace std; 
 typedef unsigned long long ll;
 
+/*
+    시간복잡도: O(k * lg N ^ 1/2)   vs  일반적인 소수 판별 시간복잡도: O(N ^ 1/2)
+*/
+
 ll power(ll a, ll d, ll n) { // a ^ d mod n 구하기
     if(d == 0) return 1;
     if(d == 1) return a % n;
