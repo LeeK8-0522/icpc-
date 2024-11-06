@@ -1,2 +1,5 @@
 - 2d vector
 - 세그먼트 트리
+- lazy propagation 세그먼트 트리
+- 트라이
+- 비트맵
