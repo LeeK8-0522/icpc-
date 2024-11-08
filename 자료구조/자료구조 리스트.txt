@@ -3,3 +3,16 @@
 - lazy propagation 세그먼트 트리
 - 트라이
 - 비트맵
+
+
+
+cf)
+세그먼트 트리 조건: 
+- init: 리프 노드
+- query: 범위 밖 or 범위 안
+- update: 범위 밖 & 리프 노드 일치 (범위 안)
+
+lazy 세그먼트 트리 조건:
+- init: 리프 노드
+- query: 범위 밖 or 범위 안
+- update: 범위 밖 & 범위 
