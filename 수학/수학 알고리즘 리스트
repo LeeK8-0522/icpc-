@@ -6,3 +6,9 @@
 - 뤼카 정리
 - 밀러-라빈 소수 판정
 - FFT
+
+
+
+cf) dp로 모듈러 역원 구하는 점화식:
+invs[i] = p - (p/i) * invs[p%i] (mod p)
+pf) p = q * i + r 식을 이용! (단, p > i)
